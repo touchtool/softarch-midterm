@@ -158,26 +158,10 @@ function setupHandlers(app) {
 
     // Advertising session
     app.get("/advertising", (req, res) => {
-        http.get("http://localhost:9000/load-fixture?db=db&fix=two-videos", res => {
-
-            let rawData = ''
-        
-            res.on('data', chunk => {
-                rawData += chunk
-            })
-            
-            res.on('end', () => {
-            const parsedData = JSON.parse(rawData)
-            console.log(parsedData)
-            })
-        
-        })
-        
-
         http.request( // Get a particular video from the db microservice.
             {
-                host: `db-fixture-rest-api`,
-                path: `http://localhost:9000/get-collection?db=db&col=videos`,
+                host: `http://localhost:9000`,
+                path: `/get-collection?db=db&col=videos`,
                 method: `GET`,
             },
             (response) => {
@@ -187,14 +171,14 @@ function setupHandlers(app) {
                 });
 
                 response.on("end", () => {
-                    const metadata = JSON.parse(data).video;
-                    const video = {
+                    const metadata = JSON.parse(data);
+                    const body = {
                         metadata,
                         url: `/api/video?id=${videoId}`,
                     };
                     
                     // Renders the video for display in the browser.
-                    res.render("advertising-video", { video });
+                    res.render("advertising-video", { body });
                 });
 
                 response.on("error", err => {
